@@ -8,7 +8,7 @@ var moment = require('moment');
 moment().format();
 
 
-route.get('/api/users/:id/activities', async function (request, response) {
+route.get('/api/users/:id/activities',  async function (request, response) {
     // returns all activities associated with current user
     await data.users.find({ _id: request.params.id })
         .populate('activities')

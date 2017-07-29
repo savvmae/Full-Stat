@@ -19,15 +19,6 @@ jwtOptions.secretOrKey = 'icanauthenticatestuff';
 // route.get('*', (request, response) => {
 //   response.sendFile(path.join(__dirname+'/client/build/index.html'));
 // });
-//does not need api
-// route.get('/login', function (request, response) {
-//     response.sendFile(__dirname + "/public/login.html");
-// });
-
-// // does not need /api
-// route.get('/signup', function (request, response) {
-//     return response.json({message: "Working!"})
-// });
 
 route.post('/api/signup', async function (request, response) {
     if (request.body.email && request.body.password && request.body.userName) {
@@ -60,13 +51,13 @@ route.post('/api/login', async function (request, response) {
     if (!user[0]) {
         return response.status(401).json({ message: "no such user found" });
     } if (user[0].password === request.body.password) {
-        var payload = { id: user._id, name: user.userName };
+        var payload = { id: user[0]._id, name: user[0].userName };
         var token = jwt.sign(payload, jwtOptions.secretOrKey);
         return response.json({ message: "ok", token: token });
     } else {
         return response.status(401).json({ message: "passwords did not match" });
     }
 });
-
+// add logout button, destroy session, maybe look up article that walks through jwt and passport
 
 module.exports = route;
