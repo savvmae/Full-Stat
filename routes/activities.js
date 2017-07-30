@@ -45,7 +45,7 @@ route.post('/api/users/:id/activities', passport.authenticate('jwt', { session: 
     }
 });
 
-route.get('/api/activities/:id', passport.authenticate('jwt', { session: false }), async function (request, response) {
+route.get('/api/activities/:id',  async function (request, response) {
     //single activity with data tracked
     var activity = await data.activities.find({ _id: request.params.id })
         .populate('entries')
