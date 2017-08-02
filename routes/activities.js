@@ -8,7 +8,7 @@ var moment = require('moment');
 moment().format();
 
 
-route.get('/api/users/:id/activities',  async function (request, response) {
+route.get('/api/users/:id/activities',  passport.authenticate('jwt', { session: false }), async function (request, response) {
     // returns all activities associated with current user
     await data.users.find({ _id: request.params.id })
         .populate('activities')
@@ -31,7 +31,7 @@ route.post('/api/users/:id/activities', passport.authenticate('jwt', { session: 
                         type: request.body.type,
                         description: request.body.description
                     });
-                    newActvity.save(function (err, data) {
+                    newActvity.save( (err, data) => {
                         user[0].activities.push(data._id);
                         user[0].save();
                         return response.status(200).json(newActvity);
@@ -45,7 +45,7 @@ route.post('/api/users/:id/activities', passport.authenticate('jwt', { session: 
     }
 });
 
-route.get('/api/activities/:id',  async function (request, response) {
+route.get('/api/activities/:id',  passport.authenticate('jwt', { session: false }), async function (request, response) {
     //single activity with data tracked
     var activity = await data.activities.find({ _id: request.params.id })
         .populate('entries')
