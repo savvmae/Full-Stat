@@ -21,7 +21,7 @@ application.set('port', process.env.PORT || 3000);
 
 mongoose.connect('mongodb://heroku_wdd164rf:9cm8een9j4n1p2hio1hb3ao2td@ds143707.mlab.com:43707/heroku_wdd164rf');
 
-application.use(express.static(path.join(__dirname, 'client/build')));
+application.use(express.static(path.join(__dirname, 'public/build')));
 application.use(bodyParser.json());
 
 application.use(passport.initialize());
