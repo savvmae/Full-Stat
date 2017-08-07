@@ -17,6 +17,8 @@ const users = require('./routes/users');
 const moment = require('moment');
 moment().format();
 
+application.set('port', process.env.PORT || 3000);
+
 mongoose.connect('mongodb://localhost:27017/Stats');
 
 application.use(express.static(path.join(__dirname, 'client/build')));
@@ -42,4 +44,10 @@ const strategy = new JwtStrategy(jwtOptions, async function(jwt_payload, next) {
 
 passport.use(strategy);
 
-application.listen(3000);
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+}
+
+application.listen(application.get('port'), () => {
+  console.log(`Listening on port ${application.get('port')}`)
+});
