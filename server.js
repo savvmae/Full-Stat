@@ -19,7 +19,7 @@ moment().format();
 
 application.set('port', process.env.PORT || 3000);
 
-mongoose.connect('mongodb://localhost:27017/Stats');
+mongoose.connect('mongodb://heroku_wdd164rf:9cm8een9j4n1p2hio1hb3ao2td@ds143707.mlab.com:43707/heroku_wdd164rf');
 
 application.use(express.static(path.join(__dirname, 'client/build')));
 application.use(bodyParser.json());
@@ -47,6 +47,10 @@ passport.use(strategy);
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('client/build'));
 }
+
+application.get('*', function(request, response) {
+  response.sendFile(path.resolve(__dirname, 'public/build/index.html'));
+});
 
 application.listen(application.get('port'), () => {
   console.log(`Listening on port ${application.get('port')}`)
