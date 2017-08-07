@@ -45,7 +45,7 @@ const strategy = new JwtStrategy(jwtOptions, async function(jwt_payload, next) {
 passport.use(strategy);
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('client/build'));
+  application.use(express.static('client/build'));
 }
 
 application.get('*', function(request, response) {
