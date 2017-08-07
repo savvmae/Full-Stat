@@ -5,10 +5,10 @@ const jwt = require('jsonwebtoken');
 
 const data = require('../models/data');
 var moment = require('moment');
-moment().format();
+moment().format('LL');
 
 
-route.get('/api/users/:id/activities',  passport.authenticate('jwt', { session: false }), async function (request, response) {
+route.get('/api/users/:id/activities', passport.authenticate('jwt', { session: false }), async function (request, response) {
     // returns all activities associated with current user
     await data.users.find({ _id: request.params.id })
         .populate('activities')
@@ -31,7 +31,7 @@ route.post('/api/users/:id/activities', passport.authenticate('jwt', { session: 
                         type: request.body.type,
                         description: request.body.description
                     });
-                    newActvity.save( (err, data) => {
+                    newActvity.save((err, data) => {
                         user[0].activities.push(data._id);
                         user[0].save();
                         return response.status(200).json(newActvity);
@@ -45,7 +45,7 @@ route.post('/api/users/:id/activities', passport.authenticate('jwt', { session: 
     }
 });
 
-route.get('/api/activities/:id',  passport.authenticate('jwt', { session: false }), async function (request, response) {
+route.get('/api/activities/:id', passport.authenticate('jwt', { session: false }), async function (request, response) {
     //single activity with data tracked
     var activity = await data.activities.find({ _id: request.params.id })
         .populate('entries')
@@ -53,7 +53,7 @@ route.get('/api/activities/:id',  passport.authenticate('jwt', { session: false 
             if (!data[0].entries[0]) {
                 return response.status(400).send({ message: 'No entries found' });
             } else {
-                var sorted = data[0].entries.sort('-date');
+                var sorted = data[0].entries.sort({ date: 'desc' });
                 return response.status(200).json(sorted);
             }
         });
@@ -96,17 +96,16 @@ route.post('/api/activities/:id/entries', passport.authenticate('jwt', { session
     // add tracked data for a day or replace if date already exists
     // validate that date is in format [yyyy-mm-dd] on client side, could do this a number of ways.
     if (request.body.date && request.body.quantity) {
-        var isoDate = new Date(request.body.date).toISOString();
+        var date = request.body.date.slice(0, 10);
+        var isoDate = new Date(date).toISOString();
         var newEntry = { date: isoDate, quantity: request.body.quantity };
         var activity = await data.activities.find({ _id: request.params.id })
-            .populate('entries').
-            exec(function (err, data) {
+            .populate('entries')
+            .exec(function (err, result) {
                 if (err) return handleError(err);
             });
-        var entryIndex = activity[0].entries.findIndex(q => q.date === isoDate);
-        var entryId = activity[0].entries.find(q => q.date === isoDate);
-        var entryCheck = await data.entries.find({ date: isoDate });
-        if (entryIndex === -1 && !entryCheck[0]) {
+        let singleEntry = activity[0].entries.find(q => q.date.toISOString() === isoDate);
+        if (!singleEntry) {
             var newEntry = new data.entries(newEntry);
             newEntry.save(function (err, data) {
                 activity[0].entries.push(data._id);
@@ -114,16 +113,15 @@ route.post('/api/activities/:id/entries', passport.authenticate('jwt', { session
                 return response.status(200).json(newEntry);
             });
         } else {
-            await data.entries.findOneAndUpdate({ date: isoDate },
+            var updatedEntry = await data.entries.findOneAndUpdate({ _id: { $in: [singleEntry._id] } },
                 {
                     $set: {
                         quantity: request.body.quantity
                     }
-                })
-            var updatedEntry = await data.entries.find({ date: isoDate });
+                }, 
+            {})
             return response.status(200).json(updatedEntry);
         };
-
     } else {
         return response.status(400).json({ message: "incomplete data" });
     }
