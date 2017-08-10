@@ -1,4 +1,4 @@
-# Project Title
+# Full Stat
 
 Full Stat is a full-stack (MERN) application for fitness tracking.
 
